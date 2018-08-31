@@ -546,6 +546,13 @@ let Database = {
     async pushUpdatedFeed({feed, parsedFeed}) {
         let now = Date.now();
         let entries = this._feedToEntries({feed, parsedFeed, now});
+        // If the feed didn't provide entries with a unique identifier, let's
+        // make our own to keep it from adding another copy on every refresh.
+        for(const entry of entries) {
+            if(!(entry.providedID || entry.entryURL)) {
+                entry.providedID = 'brief-id:' + await hashString('briefsalt' + entry.date + entry.title);
+            }
+        }
         let modified = now; // fallback
         if(parsedFeed.updated) {
             modified = parseDateValue(parsedFeed.updated);
