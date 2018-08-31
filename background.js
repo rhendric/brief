@@ -27,8 +27,17 @@ const Brief = {
             }
         });
 
-        browser.browserAction.onClicked.addListener(
-            () => browser.tabs.create({url: '/ui/brief.xhtml'}));
+        browser.browserAction.onClicked.addListener(async () => {
+            const tabs = await browser.tabs.query({
+                currentWindow: true,
+                url: `moz-extension://${location.host}/ui/brief.xhtml`,
+            });
+            if (tabs.length) {
+                browser.tabs.update(tabs[0].id, {active: true});
+            } else {
+                browser.tabs.create({url: '/ui/brief.xhtml'});
+            }
+        });
         browser.browserAction.setBadgeBackgroundColor({color: 'grey'});
 
         browser.contextMenus.create({
